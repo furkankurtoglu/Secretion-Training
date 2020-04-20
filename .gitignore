@@ -1,0 +1,7 @@
+PhysiCell/*.o 
+PhysiCell/*.exe
+PhysiCell/*.mat 
+PhysiCell/*.svg
+PhysiCell/output/*.xml
+PhysiCell/output/*.svg
+/PhysiCell/output/*.jpg
