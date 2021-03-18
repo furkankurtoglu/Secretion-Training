@@ -208,13 +208,13 @@ std::vector<std::string> my_coloring_function( Cell* pCell )
 {
 
 	std::vector<std::string> output = false_cell_coloring_cytometry(pCell);
-	double internalization_flag = parameters.doubles( "internalization_color" );
+	double internalization_flag = parameters.bools( "internalization_color" );
 	
 	//bookkeeping
 	int chemical1_substrate_index = microenvironment.find_density_index( "uptaken" );
 	int chemical2_substrate_index = microenvironment.find_density_index( "secreted" );
 	
-	if (internalization_flag == 0)
+	if (internalization_flag == false)
     {	
 	if( pCell->phenotype.death.dead == false && pCell->type == 0 )
 	{
@@ -246,23 +246,36 @@ std::vector<std::string> my_coloring_function( Cell* pCell )
     double z1_2 = pCell->phenotype.molecular.internalized_total_substrates[chemical2_substrate_index];
     
     
-	if (internalization_flag == 1)
+	if (internalization_flag == true)
     {
 	if( pCell->phenotype.death.dead == false && pCell->type == 0 )
 	{
         int R_ch1 = (int) 255.0-round((z1_1 - x1_1)/(x2_1 - x1_1)*(Ry2_1 - Ry1_1) - Ry1_1);
+        R_ch1 = std::min(255,R_ch1);
+        R_ch1 = std::max(0,R_ch1);
         int G_ch1 = (int) 255.0-round((z1_1 - x1_1)/(x2_1 - x1_1)*(Gy2_1 - Gy1_1) - Gy1_1);
+        G_ch1 = std::min(255,G_ch1);
+        G_ch1 = std::max(0,G_ch1);
         int B_ch1 = (int) 255.0-round((z1_1 - x1_1)/(x2_1 - x1_1)*(By2_1 - By1_1) - By1_1);
+        B_ch1 = std::min(255,B_ch1);
+        B_ch1 = std::max(0,B_ch1);
 		// std::cout<<pCell->phenotype.molecular.internalized_total_substrates[chemical1_substrate_index]<<std::endl;
 		char szTempString [128];
 		sprintf( szTempString , "rgb(%u,%u,%u)",R_ch1, G_ch1, B_ch1);
 		output[0].assign( szTempString );
         int R_ch2 = (int) 255.0-round((z1_2 - x1_2)/(x2_2 - x1_2)*(Ry2_2 - Ry1_2) - Ry1_2);
+        R_ch2 = std::min(255,R_ch2);
+        R_ch2 = std::max(0,R_ch2);
         int G_ch2 = (int) 255.0-round((z1_2 - x1_2)/(x2_2 - x1_2)*(Gy2_2 - Gy1_2) - Gy1_2);
+        G_ch2 = std::min(255,G_ch2);
+        G_ch2 = std::max(0,G_ch2);
         int B_ch2 = (int) 255.0-round((z1_2 - x1_2)/(x2_2 - x1_2)*(By2_2 - By1_2) - By1_2);
+        B_ch2 = std::min(255,B_ch2);
+        B_ch2 = std::max(0,B_ch2);
         //std::cout<<pCell->phenotype.molecular.internalized_total_substrates[chemical2_substrate_index]<<std::endl;
 		sprintf( szTempString , "rgb(%u,%u,%u)", R_ch2 , G_ch2 , B_ch2 );
 		output[2].assign( szTempString );
+        //std::cout << "TEST" << std::endl;
 	}
 	}
 
