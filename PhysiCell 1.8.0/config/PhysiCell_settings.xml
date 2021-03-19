@@ -162,18 +162,18 @@
 		
 		<div_uptaken type="divider" description="---Chemical A (uptaken chemical)---"/>
 		<chemical_A_uptake_rate_coefficient type="double" units="1/min"  description="uptake rate for chemical A (Default = 0.0000075)">0.0000075</chemical_A_uptake_rate_coefficient>
-		<internal_chemical_A type="double" units="substance" description="initial internalized secreted chemical (Default = 0.0)">10.0</internal_chemical_A>
+		<internal_chemical_A type="double" units="substance" description="initial internalized secreted chemical (Default = 0.0)">5.0</internal_chemical_A>
         
         
 		<div_secreted type="divider" description="---Chemical B (secreted chemical)---"/>
 		<chemical_B_secretion_rate type="double" units="1/min" description="secreteion rate for secreted chemical (Default = 0.0000075)">0.0000075</chemical_B_secretion_rate>
 		<chemical_B_saturation_density type="double" units="1/min" description="saturation density for secreted chemical (Default = 10.0)">10.0</chemical_B_saturation_density>
-		<internal_chemical_B type="double" units="1/min" description="initial internalized secreted chemical (Default = 10.0)">10.0</internal_chemical_B>
+		<internal_chemical_B type="double" units="1/min" description="initial internalized secreted chemical (Default = 10.0)">5.0</internal_chemical_B>
 		
         <div_exported type="divider" description="---Chemical C (exported chemical)---"/>
         <chemical_C_secretion_rate type="double" units="substance/min" description="net export rate for chemical C (Default = 0.0000075)">-0.0000075</chemical_C_secretion_rate>
         <chemical_C_saturation_density type="double" units="1/min" description="saturation density for secreted chemical (Default = 10.0)">10.0</chemical_C_saturation_density>
-        <internal_chemical_C type="double" units="1/min" description="initial internalized secreted chemical (Default = 10.0)">10.0</internal_chemical_C>
+        <internal_chemical_C type="double" units="1/min" description="initial internalized secreted chemical (Default = 10.0)">5.0</internal_chemical_C>
         
         <div_intcol type="divider" description="---colorization---"/>
 		<internalization_color type="bool" units="" description="Colorization (false->Default (Red), true->Colorize cells according to internal concentrations">false</internalization_color>

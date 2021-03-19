@@ -226,7 +226,6 @@ void setup_tissue( void )
     pC = create_cell(third_cell); 
 	pC->assign_position( 50.0, 0.0, 0.0 );
     pC->phenotype.molecular.internalized_total_substrates[chemical_C_substrate_index] = parameters.doubles( "internal_chemical_C" );
-	std::cout << pC->phenotype.molecular.internalized_total_substrates[chemical_C_substrate_index] << std::endl;
 	return; 
 }
 
@@ -237,9 +236,42 @@ std::vector<std::string> my_coloring_function( Cell* pCell )
 	double internalization_flag = parameters.bools( "internalization_color" );
 	
 	//bookkeeping
-	int chemical1_substrate_index = microenvironment.find_density_index( "uptaken" );
-	int chemical2_substrate_index = microenvironment.find_density_index( "secreted" );
-	
+	static int chemical_A_substrate_index = microenvironment.find_density_index( "chemical_A" );
+	static int chemical_B_substrate_index = microenvironment.find_density_index( "chemical_B" ); 
+    static int chemical_C_substrate_index = microenvironment.find_density_index( "chemical_C");
+    
+    
+    //std::cout<<  "chem A" << pCell->phenotype.molecular.internalized_total_substrates[chemical_A_substrate_index]<<std::endl;
+    //std::cout<<  "chem B" << pCell->phenotype.molecular.internalized_total_substrates[chemical_A_substrate_index]<<std::endl;
+    //std::cout<<  "chem C" << pCell->phenotype.molecular.internalized_total_substrates[chemical_A_substrate_index]<<std::endl;
+    
+    
+    if (pCell->phenotype.death.dead == false && pCell->type == 1)
+    {
+        std::cout << "cell 1" << std::endl;
+        std::cout<<  "chem A = " << pCell->phenotype.molecular.internalized_total_substrates[chemical_A_substrate_index]<<std::endl;
+        std::cout<<  "chem B = " << pCell->phenotype.molecular.internalized_total_substrates[chemical_B_substrate_index]<<std::endl;
+        std::cout<<  "chem C = " << pCell->phenotype.molecular.internalized_total_substrates[chemical_C_substrate_index]<<std::endl;
+    }
+    
+    if (pCell->phenotype.death.dead == false && pCell->type == 2)
+    {
+        std::cout << "cell 2" << std::endl;
+        std::cout<<  "chem A = " << pCell->phenotype.molecular.internalized_total_substrates[chemical_A_substrate_index]<<std::endl;
+        std::cout<<  "chem B = " << pCell->phenotype.molecular.internalized_total_substrates[chemical_B_substrate_index]<<std::endl;
+        std::cout<<  "chem C = " << pCell->phenotype.molecular.internalized_total_substrates[chemical_C_substrate_index]<<std::endl;
+    }    
+    
+    
+    if (pCell->phenotype.death.dead == false && pCell->type == 3)
+    {
+        std::cout << "cell 3" << std::endl;
+        std::cout<<  "chem A = " << pCell->phenotype.molecular.internalized_total_substrates[chemical_A_substrate_index]<<std::endl;
+        std::cout<<  "chem B = " << pCell->phenotype.molecular.internalized_total_substrates[chemical_B_substrate_index]<<std::endl;
+        std::cout<<  "chem C = " << pCell->phenotype.molecular.internalized_total_substrates[chemical_C_substrate_index]<<std::endl;
+    }    
+    
+    
 	if (internalization_flag == false)
     {	
 	if( pCell->phenotype.death.dead == false && pCell->type == 0 )
@@ -258,7 +290,7 @@ std::vector<std::string> my_coloring_function( Cell* pCell )
     double By2_1=255.0;
 	double x1_1=0.0;
     double x2_1=10.0;
-    double z1_1 = pCell->phenotype.molecular.internalized_total_substrates[chemical1_substrate_index];
+    //double z1_1 = pCell->phenotype.molecular.internalized_total_substrates[chemical1_substrate_index];
     
     //Red
     double Ry1_2=255.0;
@@ -269,10 +301,10 @@ std::vector<std::string> my_coloring_function( Cell* pCell )
     double By2_2=159.0;
 	double x1_2=0.0;
     double x2_2=10.0;
-    double z1_2 = pCell->phenotype.molecular.internalized_total_substrates[chemical2_substrate_index];
+    //double z1_2 = pCell->phenotype.molecular.internalized_total_substrates[chemical2_substrate_index];
     
     
-	if (internalization_flag == true)
+	/* if (internalization_flag == true)
     {
 	if( pCell->phenotype.death.dead == false && pCell->type == 0 )
 	{
@@ -303,7 +335,7 @@ std::vector<std::string> my_coloring_function( Cell* pCell )
 		output[2].assign( szTempString );
         //std::cout << "TEST" << std::endl;
 	}
-	}
+	} */
 
 	return output; 
 }

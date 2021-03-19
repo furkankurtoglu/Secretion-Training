@@ -95,9 +95,7 @@ void update_intracellular()
     static int i_chem_B = microenvironment.find_density_index( "internal_chemical_B" );
     static int i_chem_C = microenvironment.find_density_index( "internal_chemical_C" );
 
-    // rwh: todo: optimize 
-    // If we know for certain that the intracellular updates happen at every dt_diffusion, then do it here?
-    // #pragma omp parallel for 
+ 
     for( int i=0; i < (*all_cells).size(); i++ )
     {
         
@@ -106,23 +104,24 @@ void update_intracellular()
             if ( (*all_cells)[i]->type == 1 )
             {
 
-                (*all_cells)[i]->custom_data[i_chem_A]=(*all_cells)[i]->phenotype.molecular.internalized_total_substrates[chemical_A_substrate_index];
+                //(*all_cells)[i]->custom_data[i_chem_A]=(*all_cells)[i]->phenotype.molecular.internalized_total_substrates[chemical_A_substrate_index];
             }
             if ( (*all_cells)[i]->type == 2 )
             {
                 
-                (*all_cells)[i]->custom_data[i_chem_B]=(*all_cells)[i]->phenotype.molecular.internalized_total_substrates[chemical_B_substrate_index];
+                //(*all_cells)[i]->custom_data[i_chem_B]=(*all_cells)[i]->phenotype.molecular.internalized_total_substrates[chemical_B_substrate_index];
             }
             if ( (*all_cells)[i]->type == 3 )
             {
-                std::cout << (*all_cells)[i]->phenotype.molecular.internalized_total_substrates[chemical_A_substrate_index] << std::endl;
-                std::cout << (*all_cells)[i]->phenotype.molecular.internalized_total_substrates[chemical_B_substrate_index] << std::endl;
-                std::cout << (*all_cells)[i]->phenotype.molecular.internalized_total_substrates[chemical_C_substrate_index] << std::endl;
-                (*all_cells)[i]->custom_data[i_chem_C]=(*all_cells)[i]->phenotype.molecular.internalized_total_substrates[chemical_C_substrate_index];
+                //std::cout << (*all_cells)[i]->phenotype.molecular.internalized_total_substrates[chemical_A_substrate_index] << std::endl;
+                //std::cout << (*all_cells)[i]->phenotype.molecular.internalized_total_substrates[chemical_B_substrate_index] << std::endl;
+                //std::cout << (*all_cells)[i]->phenotype.molecular.internalized_total_substrates[chemical_C_substrate_index] << std::endl;
+                //(*all_cells)[i]->custom_data[i_chem_C]=(*all_cells)[i]->phenotype.molecular.internalized_total_substrates[chemical_C_substrate_index];
             }
         }
     }
 }
+
 
 int main( int argc, char* argv[] )
 {
@@ -243,6 +242,7 @@ int main( int argc, char* argv[] )
 
 			// update the microenvironment
 			microenvironment.simulate_diffusion_decay( diffusion_dt );
+            microenvironment.simulate_cell_sources_and_sinks( diffusion_dt );
 			
 			// run PhysiCell 
 			((Cell_Container *)microenvironment.agent_container)->update_all_cells( PhysiCell_globals.current_time );
@@ -252,7 +252,6 @@ int main( int argc, char* argv[] )
 			*/
 			
 			PhysiCell_globals.current_time += diffusion_dt;
-            update_intracellular();
 		}
 		
 		if( PhysiCell_settings.enable_legacy_saves == true )

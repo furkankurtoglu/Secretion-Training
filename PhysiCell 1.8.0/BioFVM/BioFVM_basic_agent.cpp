@@ -314,7 +314,7 @@ void Basic_Agent::simulate_secretion_and_uptake( Microenvironment* pS, double dt
 	if( default_microenvironment_options.track_internalized_substrates_in_each_agent == true )
 	{
 		total_extracellular_substrate_change.assign( total_extracellular_substrate_change.size() , 1.0 ); // 1
-
+        //std::cout << "TEEEEEEEEST" << std::endl;
 		total_extracellular_substrate_change -= cell_source_sink_solver_temp2; // 1-c2
 		total_extracellular_substrate_change *= (*pS)(current_voxel_index); // (1-c2)*rho 
 		total_extracellular_substrate_change += cell_source_sink_solver_temp1; // (1-c2)*rho+c1 

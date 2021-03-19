@@ -879,7 +879,8 @@ void Microenvironment::simulate_cell_sources_and_sinks( std::vector<Basic_Agent*
 {
 	#pragma omp parallel for
 	for( unsigned int i=0 ; i < basic_agent_list.size() ; i++ )
-	{		
+	{	
+        //std::cout << "sinking" << std::endl;
 		basic_agent_list[i]->simulate_secretion_and_uptake( this , dt ); 
 	}
 	
