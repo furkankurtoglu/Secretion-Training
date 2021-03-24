@@ -2270,6 +2270,8 @@ void initialize_cell_definitions_from_pugixml( pugi::xml_node root )
 {
 	pugi::xml_node node_options; 
 	
+    std::cout << __FUNCTION__ << "------------" << std::endl;
+
 	node_options = xml_find_node( root , "options" ); 
 	if( node_options )
 	{

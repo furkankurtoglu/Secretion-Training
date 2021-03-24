@@ -100,7 +100,8 @@ std::unordered_map<std::string,int> cycle_model_codes =
 	{ "apoptosis",PhysiCell_constants::apoptosis_death_model}, 
 	{ "necrosis",PhysiCell_constants::necrosis_death_model} 
 	
-}; 
+};
+
 
 int find_cycle_model_code( std::string model_name )
 {

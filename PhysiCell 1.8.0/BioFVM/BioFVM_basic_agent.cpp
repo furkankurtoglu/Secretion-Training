@@ -50,6 +50,8 @@
 #include "BioFVM_agent_container.h"
 #include "BioFVM_vector.h" 
 
+#include "../modules/PhysiCell_settings.h" 
+
 namespace BioFVM{
 
 std::vector<Basic_Agent*> all_basic_agents(0); 
@@ -320,6 +322,7 @@ void Basic_Agent::simulate_secretion_and_uptake( Microenvironment* pS, double dt
 		total_extracellular_substrate_change += cell_source_sink_solver_temp1; // (1-c2)*rho+c1 
 		total_extracellular_substrate_change /= cell_source_sink_solver_temp2; // ((1-c2)*rho+c1)/c2
 		total_extracellular_substrate_change *= pS->voxels(current_voxel_index).volume; // W*((1-c2)*rho+c1)/c2 
+
         //std::cout << "Internalized substrate change = ";
 		//std::cout << total_extracellular_substrate_change << std::endl;
 		*internalized_substrates -= total_extracellular_substrate_change; // opposite of net extracellular change 	

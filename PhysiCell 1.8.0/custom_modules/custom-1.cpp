@@ -69,72 +69,116 @@
 
 // declare cell definitions here 
 
-//rwh - this may have caused original problemss??
-// Cell_Definition first_cell;
-// Cell_Definition second_cell;
-// Cell_Definition third_cell;
+Cell_Definition first_cell;
+Cell_Definition second_cell;
+Cell_Definition third_cell;
 
 void create_cell_types( void )
 {
-	cell_defaults.functions.volume_update_function = standard_volume_update_function;
-	cell_defaults.functions.update_velocity = standard_update_cell_velocity;
+	// use the same random seed so that future experiments have the 
+	// same initial histogram of oncoprotein, even if threading means 
+	// that future division and other events are still not identical 
+	// for all runs 
+	SeedRandom( parameters.ints("random_seed") ); // or specify a seed here 
+	
+	// housekeeping 
+	initialize_default_cell_definition();
+	cell_defaults.phenotype.secretion.sync_to_microenvironment( &microenvironment ); 
+	
+	// Name the default cell type 
+	cell_defaults.type = 0; 
+	cell_defaults.name = "default cell"; 
 
-	cell_defaults.functions.update_migration_bias = NULL; 
-	cell_defaults.functions.update_phenotype = NULL;   
-	cell_defaults.functions.custom_cell_rule = NULL; 
+	// set default cell cycle model 
+	cell_defaults.functions.cycle_model = live; 
 	
-	cell_defaults.functions.add_cell_basement_membrane_interactions = NULL; 
-	cell_defaults.functions.calculate_distance_to_membrane = NULL; 
+	// set default_cell_functions; 
+	cell_defaults.functions.update_phenotype = NULL; 
 	
-	/*
-	   This parses the cell definitions in the XML config file. 
-	*/
+	// needed for a 2-D simulation: 
+	cell_defaults.functions.set_orientation = up_orientation; 
+	cell_defaults.phenotype.geometry.polarity = 1.0;
+	cell_defaults.phenotype.motility.restrict_to_2D = true; 
+    // disable motility 
+	cell_defaults.phenotype.motility.is_motile = false; 
 	
-	initialize_cell_definitions_from_pugixml(); 
-	
-	/* 
-	   Put any modifications to individual cell definitions here. 
-	   
-	   This is a good place to set custom functions. 
-	*/ 
+	// make sure the defaults are self-consistent. 
+	cell_defaults.phenotype.secretion.sync_to_microenvironment( &microenvironment );
+	cell_defaults.phenotype.sync_to_functions( cell_defaults.functions ); 
 
-	cell_defaults.phenotype.mechanics.attachment_elastic_constant = parameters.doubles( "elastic_coefficient" );
-	
-	// static int first_ID = find_cell_definition( "first cell" )->type; 
-	// static int second_ID = find_cell_definition( "second cell" )->type; 
-	// static int third_ID = find_cell_definition( "third cell" )->type; 
+	// set the rate terms in the default phenotype 
 
+	// first find index for a few key variables for death 
+	int apoptosis_model_index = cell_defaults.phenotype.death.find_death_model_index( "Apoptosis" );
+	int necrosis_model_index = cell_defaults.phenotype.death.find_death_model_index( "Necrosis" );
+    
+	// initially no necrosis and apoptosis
+	cell_defaults.phenotype.death.rates[necrosis_model_index] = 0.0; 
+	cell_defaults.phenotype.death.rates[apoptosis_model_index] = 0.0; 
+    
+    // finding indices for cycle phases
+    int start_index = live.find_phase_index( PhysiCell_constants::live );
+	int end_index = live.find_phase_index( PhysiCell_constants::live );
+    
 	static int chemical_A_substrate_index = microenvironment.find_density_index( "chemical_A" );
 	static int chemical_B_substrate_index = microenvironment.find_density_index( "chemical_B" ); 
     static int chemical_C_substrate_index = microenvironment.find_density_index( "chemical_C");
+    
+	// set zero uptake / secretion parameters for the default cell type 
+	cell_defaults.phenotype.secretion.uptake_rates[chemical_A_substrate_index] = 0.0; 
+	cell_defaults.phenotype.secretion.secretion_rates[chemical_A_substrate_index] = 0.0;
+	cell_defaults.phenotype.secretion.saturation_densities[chemical_A_substrate_index] = 0.0;
+    
+    cell_defaults.phenotype.secretion.uptake_rates[chemical_B_substrate_index] = 0.0; 
+	cell_defaults.phenotype.secretion.secretion_rates[chemical_B_substrate_index] = 0.0;
+	cell_defaults.phenotype.secretion.saturation_densities[chemical_B_substrate_index] = 0.0;
+    
+    cell_defaults.phenotype.secretion.uptake_rates[chemical_C_substrate_index] = 0.0; 
+	cell_defaults.phenotype.secretion.secretion_rates[chemical_C_substrate_index] = 0.0;
+	cell_defaults.phenotype.secretion.saturation_densities[chemical_C_substrate_index] = 0.0;
 
-    //rwh: note that now we use a pointer, pCD, not an instance, to the object.
-	Cell_Definition* pCD = find_cell_definition( "first cell" ); 
 
-    // first_cell.phenotype.secretion.net_export_rates[chemical_A_substrate_index] = parameters.doubles( "chemical_A_secretion_rate" );
-    pCD->phenotype.secretion.net_export_rates[chemical_A_substrate_index] = parameters.doubles( "chemical_A_secretion_rate" );
- 	pCD->phenotype.secretion.saturation_densities[chemical_A_substrate_index] = parameters.doubles( "chemical_A_saturation_density" );    
-	
-	// pCD = find_cell_definition( "second cell" ); 
-    // pCD->phenotype.secretion.net_export_rates[chemical_B_substrate_index] = parameters.doubles( "chemical_B_secretion_rate" );
- 	// pCD->phenotype.secretion.saturation_densities[chemical_B_substrate_index] = parameters.doubles( "chemical_B_saturation_density" );    
+    cell_defaults.custom_data.add_variable( "internal_chemical_A" , "mmol", 0.0 );
+    cell_defaults.custom_data.add_variable( "internal_chemical_B" , "mmol", 0.0 );    
+    cell_defaults.custom_data.add_variable( "internal_chemical_C" , "mmol", 0.0 );
+    
+    // first cell uptakes Chemical A
+    first_cell = cell_defaults; 
+	first_cell.type = 1; 
+	first_cell.name = "first cell"; 
+    // make sure the new cell type has its own reference phenotype
+    first_cell.parameters.pReference_live_phenotype = &( first_cell.phenotype ); 
+    // uptake rate
+	first_cell.phenotype.secretion.uptake_rates[chemical_A_substrate_index] = parameters.doubles( "chemical_A_uptake_rate_coefficient" ); 
+    
+    
+    // second cell secretes Chemical B
+    second_cell = cell_defaults; 
+	second_cell.type = 2; 
+	second_cell.name = "second cell"; 
+    // make sure the new cell type has its own reference phenotype
+    second_cell.parameters.pReference_live_phenotype = &( second_cell.phenotype ); 
+    
+    // secretion rate and saturation density
+	second_cell.phenotype.secretion.secretion_rates[chemical_B_substrate_index] = parameters.doubles( "chemical_B_secretion_rate" ); 
+	second_cell.phenotype.secretion.saturation_densities[chemical_B_substrate_index] = parameters.doubles( "chemical_B_saturation_density" ); 
+    
+    
+	// third cell uses net export for Chemical C
+	third_cell = cell_defaults; 
+	third_cell.type = 3; 
+	third_cell.name = "third cell"; 
+	// make sure the new cell type has its own reference phenotype
+    third_cell.parameters.pReference_live_phenotype = &( third_cell.phenotype );
+    third_cell.phenotype.secretion.net_export_rates[chemical_C_substrate_index] = parameters.doubles( "chemical_C_secretion_rate" );
+ 	third_cell.phenotype.secretion.saturation_densities[chemical_C_substrate_index] = parameters.doubles( "chemical_C_saturation_density" );    
 
-	// pCD = find_cell_definition( "third cell" );
-    // pCD->phenotype.secretion.net_export_rates[chemical_C_substrate_index] = parameters.doubles( "chemical_C_secretion_rate" );
- 	// pCD->phenotype.secretion.saturation_densities[chemical_C_substrate_index] = parameters.doubles( "chemical_C_saturation_density" );    
-	
-	/*
-	   This builds the map of cell definitions and summarizes the setup. 
-	*/
-		
-	build_cell_definitions_maps(); 
-	display_cell_definitions( std::cout ); 
-	
 	return; 
 }
 
 void setup_microenvironment( void )
 {
+	
 	// make sure to override and go back to 2D 
 	if( default_microenvironment_options.simulate_2D == false )
 	{
@@ -143,45 +187,35 @@ void setup_microenvironment( void )
 	}
 	
 	initialize_microenvironment(); 	
+	
 	return; 
 }
 
 void setup_tissue( void )
 {
-    // load cells from your CSV file (if enabled)
-	if (load_cells_from_pugixml())
-    {
-        std::cout << __FUNCTION__ << ": finished loading cells from .csv file in /config" << std::endl;
-    }
-
-    else {
-        std::cout << __FUNCTION__ << ": ERROR - need to supply .csv in /config" << std::endl;
-        std::exit(-1);
-
 	// create some cells near the origin
-        // Cell* pC;
+	
+	Cell* pC;
 
-        // static int chemical_A_substrate_index = microenvironment.find_density_index( "chemical_A" );
-        // static int chemical_B_substrate_index = microenvironment.find_density_index( "chemical_B" ); 
-        // static int chemical_C_substrate_index = microenvironment.find_density_index( "chemical_C");
-        // std::cout << "----- setup_tissue: chem A,B,C indices= " << chemical_A_substrate_index <<", "<< chemical_B_substrate_index <<", "<< chemical_C_substrate_index << std::endl;  // = 0,1,2
+	static int chemical_A_substrate_index = microenvironment.find_density_index( "chemical_A" );
+	static int chemical_B_substrate_index = microenvironment.find_density_index( "chemical_B" ); 
+    static int chemical_C_substrate_index = microenvironment.find_density_index( "chemical_C");
+    std::cout << "----- setup_tissue: chem A,B,C indices= " << chemical_A_substrate_index <<", "<< chemical_B_substrate_index <<", "<< chemical_C_substrate_index << std::endl;  // = 0,1,2
 
-        // pC = create_cell(first_cell); 
-        // pC->assign_position( -50.0, 0.0, 0.0 );
-        // // pC->phenotype.molecular.internalized_total_substrates[chemical_A_substrate_index] = parameters.doubles( "internal_chemical_A" );
-        // pC->phenotype.molecular.internalized_total_substrates[chemical_B_substrate_index] = parameters.doubles( "internal_chemical_A" );
-        
-        // pC = create_cell(second_cell); 
-        // pC->assign_position( 0.0, 0.0, 0.0 );
-        // pC->phenotype.molecular.internalized_total_substrates[chemical_A_substrate_index] = parameters.doubles( "internal_chemical_B" );
-        
-        // pC = create_cell(third_cell); 
-        // pC->assign_position( 50.0, 0.0, 0.0 );
-        // pC->phenotype.molecular.internalized_total_substrates[chemical_C_substrate_index] = parameters.doubles( "internal_chemical_C" );
-    }
+	pC = create_cell(first_cell); 
+	pC->assign_position( -50.0, 0.0, 0.0 );
+    // pC->phenotype.molecular.internalized_total_substrates[chemical_A_substrate_index] = parameters.doubles( "internal_chemical_A" );
+    pC->phenotype.molecular.internalized_total_substrates[chemical_B_substrate_index] = parameters.doubles( "internal_chemical_A" );
+    
+    pC = create_cell(second_cell); 
+	pC->assign_position( 0.0, 0.0, 0.0 );
+    pC->phenotype.molecular.internalized_total_substrates[chemical_A_substrate_index] = parameters.doubles( "internal_chemical_B" );
+    
+    pC = create_cell(third_cell); 
+	pC->assign_position( 50.0, 0.0, 0.0 );
+    pC->phenotype.molecular.internalized_total_substrates[chemical_C_substrate_index] = parameters.doubles( "internal_chemical_C" );
 	return; 
 }
-
 
 std::vector<std::string> my_coloring_function( Cell* pCell )
 {

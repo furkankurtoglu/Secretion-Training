@@ -84,6 +84,40 @@ using namespace BioFVM;
 using namespace PhysiCell;
 
 
+void update_secr_param_and_ic_int_met()
+{
+    static int chemical_A_substrate_index = microenvironment.find_density_index( "chemical_A" );
+	static int chemical_B_substrate_index = microenvironment.find_density_index( "chemical_B" ); 
+    static int chemical_C_substrate_index = microenvironment.find_density_index( "chemical_C");
+
+    for( int i=0; i < (*all_cells).size(); i++ )
+    {
+        if( (*all_cells)[i]->is_out_of_domain == false  )
+        {
+          if ( (*all_cells)[i]->type == 1)
+          {
+            std::cout << "TEST" << std::endl;
+            (*all_cells)[i]->phenotype.secretion.uptake_rates[chemical_A_substrate_index] = parameters.doubles( "chemical_A_uptake_rate_coefficient" );
+            (*all_cells)[i]->phenotype.molecular.internalized_total_substrates[chemical_A_substrate_index] = parameters.doubles( "internal_chemical_A" );
+          }
+          
+          if ( (*all_cells)[i]->type == 2)
+          {
+            (*all_cells)[i]->phenotype.secretion.secretion_rates[chemical_B_substrate_index] = parameters.doubles( "chemical_B_secretion_rate" ); 
+            (*all_cells)[i]->phenotype.secretion.saturation_densities[chemical_B_substrate_index] = parameters.doubles( "chemical_B_saturation_density" );  
+            (*all_cells)[i]->phenotype.molecular.internalized_total_substrates[chemical_B_substrate_index] = parameters.doubles( "internal_chemical_B" );  
+          }
+          
+          if ( (*all_cells)[i]->type == 3)
+          {
+            (*all_cells)[i]->phenotype.secretion.net_export_rates[chemical_C_substrate_index] = parameters.doubles( "chemical_C_secretion_rate" );
+            (*all_cells)[i]->phenotype.secretion.saturation_densities[chemical_C_substrate_index] = parameters.doubles( "chemical_C_saturation_density" );
+            (*all_cells)[i]->phenotype.molecular.internalized_total_substrates[chemical_C_substrate_index] = parameters.doubles( "internal_chemical_C" );
+          }
+        }
+    }
+}
+
 void update_intracellular()
 {
 	static int chemical_A_substrate_index = microenvironment.find_density_index( "chemical_A" );
@@ -98,25 +132,23 @@ void update_intracellular()
  
     for( int i=0; i < (*all_cells).size(); i++ )
     {
-        
         if( (*all_cells)[i]->is_out_of_domain == false  )
         {
             if ( (*all_cells)[i]->type == 1 )
             {
-
-                //(*all_cells)[i]->custom_data[i_chem_A]=(*all_cells)[i]->phenotype.molecular.internalized_total_substrates[chemical_A_substrate_index];
+                std::cout << "Before update - Cell_Type 1 = " << (*all_cells)[i]->custom_data[i_chem_A] << std::endl;
+                (*all_cells)[i]->custom_data[i_chem_A] = (*all_cells)[i]->phenotype.molecular.internalized_total_substrates[chemical_A_substrate_index];
+                std::cout << "After update - Cell_Type 1 = " << (*all_cells)[i]->custom_data[i_chem_A] << std::endl;;
             }
             if ( (*all_cells)[i]->type == 2 )
             {
-                
-                //(*all_cells)[i]->custom_data[i_chem_B]=(*all_cells)[i]->phenotype.molecular.internalized_total_substrates[chemical_B_substrate_index];
+                //std::cout << "TEST" << std::endl;
+                (*all_cells)[i]->custom_data[i_chem_B]=(*all_cells)[i]->phenotype.molecular.internalized_total_substrates[chemical_B_substrate_index];
             }
             if ( (*all_cells)[i]->type == 3 )
             {
-                //std::cout << (*all_cells)[i]->phenotype.molecular.internalized_total_substrates[chemical_A_substrate_index] << std::endl;
-                //std::cout << (*all_cells)[i]->phenotype.molecular.internalized_total_substrates[chemical_B_substrate_index] << std::endl;
-                //std::cout << (*all_cells)[i]->phenotype.molecular.internalized_total_substrates[chemical_C_substrate_index] << std::endl;
-                //(*all_cells)[i]->custom_data[i_chem_C]=(*all_cells)[i]->phenotype.molecular.internalized_total_substrates[chemical_C_substrate_index];
+                //std::cout << "TEST" << std::endl;
+                (*all_cells)[i]->custom_data[i_chem_C]=(*all_cells)[i]->phenotype.molecular.internalized_total_substrates[chemical_C_substrate_index];
             }
         }
     }
@@ -152,11 +184,14 @@ int main( int argc, char* argv[] )
 	double mechanics_voxel_size = 30; 
 	Cell_Container* cell_container = create_cell_container_for_microenvironment( microenvironment, mechanics_voxel_size );
 	
+    SeedRandom( parameters.ints("random_seed") ); // or specify a seed here 
+
 	/* Users typically start modifying here. START USERMODS */ 
 	
 	create_cell_types();
 	
 	setup_tissue();
+    update_secr_param_and_ic_int_met();
 
 	/* Users typically stop modifying here. END USERMODS */ 
 	
@@ -246,7 +281,7 @@ int main( int argc, char* argv[] )
 			
 			// run PhysiCell 
 			((Cell_Container *)microenvironment.agent_container)->update_all_cells( PhysiCell_globals.current_time );
-			
+			update_intracellular();
 			/*
 			  Custom add-ons could potentially go here. 
 			*/
