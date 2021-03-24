@@ -136,19 +136,19 @@ void update_intracellular()
         {
             if ( (*all_cells)[i]->type == 1 )
             {
-                std::cout << "Before update - Cell_Type 1 = " << (*all_cells)[i]->custom_data[i_chem_A] << std::endl;
-                (*all_cells)[i]->custom_data[i_chem_A] = (*all_cells)[i]->phenotype.molecular.internalized_total_substrates[chemical_A_substrate_index];
-                std::cout << "After update - Cell_Type 1 = " << (*all_cells)[i]->custom_data[i_chem_A] << std::endl;;
+                std::cout << "Before update - Cell_Type 1 = " << (*all_cells)[i]->custom_data["internal_chemical_A"] << std::endl;
+                (*all_cells)[i]->custom_data["internal_chemical_A"] = (*all_cells)[i]->phenotype.molecular.internalized_total_substrates[chemical_A_substrate_index];
+                std::cout << "After update - Cell_Type 1 = " << (*all_cells)[i]->custom_data["internal_chemical_A"] << std::endl;;
             }
             if ( (*all_cells)[i]->type == 2 )
             {
                 //std::cout << "TEST" << std::endl;
-                (*all_cells)[i]->custom_data[i_chem_B]=(*all_cells)[i]->phenotype.molecular.internalized_total_substrates[chemical_B_substrate_index];
+                (*all_cells)[i]->custom_data["internal_chemical_B"]=(*all_cells)[i]->phenotype.molecular.internalized_total_substrates[chemical_B_substrate_index];
             }
             if ( (*all_cells)[i]->type == 3 )
             {
                 //std::cout << "TEST" << std::endl;
-                (*all_cells)[i]->custom_data[i_chem_C]=(*all_cells)[i]->phenotype.molecular.internalized_total_substrates[chemical_C_substrate_index];
+                (*all_cells)[i]->custom_data["internal_chemical_C"]=(*all_cells)[i]->phenotype.molecular.internalized_total_substrates[chemical_C_substrate_index];
             }
         }
     }
