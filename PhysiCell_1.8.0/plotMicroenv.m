@@ -18,6 +18,9 @@ chemB=zeros(1,length(OutMatFiles));
 chemC=zeros(1,length(OutMatFiles));
 
 
+MicEnv = 'n';
+Cells = 'y';
+
 %%
 for i = 1:length(OutMatFiles)
 
@@ -25,9 +28,10 @@ for i = 1:length(OutMatFiles)
     MCDS = read_MultiCellDS_xml( xmlname);
     
     %% Chemical A
+    if MicEnv == 'y'
     k = find( MCDS.mesh.Z_coordinates == 0 );
     h1 = figure(1);
-    filename1="Oxygen.gif";
+    filename1="Chemical_A.gif";
     contourf( MCDS.mesh.X(:,:,k), MCDS.mesh.Y(:,:,k), MCDS.continuum_variables(1).data(:,:,k) ,20 ) ;
     axis image
     colorbar
@@ -54,7 +58,7 @@ for i = 1:length(OutMatFiles)
     %% Chemical B
     k = find( MCDS.mesh.Z_coordinates == 0 );
     h = figure(2);
-    filename="Chemical_A.gif";
+    filename="Chemical_B.gif";
     contourf( MCDS.mesh.X(:,:,k), MCDS.mesh.Y(:,:,k), MCDS.continuum_variables(2).data(:,:,k) ,20 ) ;
     axis image
     colorbar
@@ -80,7 +84,7 @@ for i = 1:length(OutMatFiles)
     %% Chemical C
     k = find( MCDS.mesh.Z_coordinates == 0 );
     h = figure(3);
-    filename="Chemical_A.gif";
+    filename="Chemical_C.gif";
     contourf( MCDS.mesh.X(:,:,k), MCDS.mesh.Y(:,:,k), MCDS.continuum_variables(3).data(:,:,k) ,20 ) ;
     axis image
     colorbar
@@ -102,25 +106,29 @@ for i = 1:length(OutMatFiles)
     else
         imwrite(imind,cm,filename,'gif','WriteMode','append');
     end
+    
+    end
+    if Cells == 'y'
     physicell_mat = strcat(OutMatFiles{i},'_cells_physicell.mat');
     load(physicell_mat)
     chemA(i)=cells(28,1);
     chemB(i)=cells(29,2);
     chemC(i)=cells(30,3);
     
-
+    end
 
 end 
 %%
-chemA(1)=[];
-chemB(1)=[];
-chemC(1)=[];
-%%
-figure(4)
-plot(chemA,'b')
-hold on
-plot(chemB,'k')
-plot(chemC,'r')
-legend('chemA','chemB','chemC')
+if Cells == 'y'
+    chemA(1)=[];
+    chemB(1)=[];
+    chemC(1)=[];
+    figure(4)
+    plot(chemA,'b')
+    hold on
+    plot(chemB,'k')
+    plot(chemC,'r')
+    legend('chemA','chemB','chemC')
+end
 %%
 cd ..
